@@ -1,6 +1,6 @@
 *.pyc
 .venv/
-sdks/
+# sdks/
 __pycache__/
 env.sh
 
