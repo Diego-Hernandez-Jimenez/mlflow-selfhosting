@@ -1,9 +1,11 @@
 from dataclasses import dataclass
 
 import pulumi
-from src import artifact_store, iam
-from src.backend_store import BackendStore
-from src.mlflow_service import tracking_server
+
+from .artifact_store import ArtifactStore
+from .backend_store import BackendStore
+from .iam import MlflowIam
+from .mlflow_service.tracking_server import MlflowServer
 
 
 @dataclass
@@ -27,6 +29,9 @@ class GcpMlflow(pulumi.ComponentResource):
     ) -> None:
         super().__init__("mlflow-selfhosting:index:GcpMlflow", name, {}, opts)
 
+        if args is None:
+            args = GcpMlflowArgs()
+            
         # pulumi hierarchy
         child_opts = pulumi.ResourceOptions(parent=self)
 
@@ -36,19 +41,18 @@ class GcpMlflow(pulumi.ComponentResource):
             branch_name=args.env,
             pg_version=args.backend_store_pg_version,
             region_id=args.backend_store_region,
-            config=args.backend_store_config,
             opts=child_opts,
         )
 
         # Artifact Store
-        self.artifact_store = artifact_store.ArtifactStore(
+        self.artifact_store = ArtifactStore(
             "mlflow-artifact-store",
             region=args.artifact_store_region,
             opts=child_opts,
         )
 
         # IAM
-        self.iam = iam.IamRoles(
+        self.iam = MlflowIam(
             "mlflow-iam",
             bucket_name=self.artifact_store.bucket.name,
             neon_db_secret=self.backend.db_secret,
@@ -56,7 +60,7 @@ class GcpMlflow(pulumi.ComponentResource):
         )
 
         # MLflow Server
-        self.server = tracking_server.Server(
+        self.server = MlflowServer(
             "mlflow-service",
             bucket_url=self.artifact_store.bucket_url,
             mlflow_version=args.mlflow_version,
@@ -68,7 +72,9 @@ class GcpMlflow(pulumi.ComponentResource):
 
         self.tracking_uri = self.server.url
 
-        self.register_outputs({
-            "tracking_uri": self.tracking_uri,
-            "artifact_store_uri": self.artifact_store
-        })
+        self.register_outputs(
+            {
+                "tracking_uri": self.tracking_uri,
+                "artifact_store_uri": self.artifact_store,
+            }
+        )
