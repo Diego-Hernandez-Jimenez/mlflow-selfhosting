@@ -1,0 +1,7 @@
+name: mlflow-selfhosting
+description: A minimal Google Cloud Python Pulumi program
+runtime: python
+config:
+  pulumi:tags:
+    value:
+      pulumi:template: gcp-python

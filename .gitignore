@@ -1,7 +1,4 @@
 *.pyc
 .venv/
-# sdks/
 __pycache__/
 env.sh
-
-Pulumi.*yaml
