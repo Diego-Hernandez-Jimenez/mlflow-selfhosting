@@ -1,7 +1,13 @@
 """Artifact store: Blob storage for larger pieces of persisted data."""
 
+from typing import TypedDict
+
 import pulumi
 from pulumi_gcp import storage as gcs
+
+
+class ArtifactStoreArgs(TypedDict):
+    location: str
 
 
 class ArtifactStore(pulumi.ComponentResource):
@@ -9,8 +15,8 @@ class ArtifactStore(pulumi.ComponentResource):
 
     def __init__(
         self,
-        name: str | None,
-        location: pulumi.Input[str] = "us-east1",
+        name: str,
+        args: ArtifactStoreArgs,
         opts: pulumi.ResourceOptions | None = None,
     ) -> None:
         super().__init__("mlflow-selfhosting:artifact:ArtifactStore", name, {}, opts)
@@ -18,9 +24,9 @@ class ArtifactStore(pulumi.ComponentResource):
         child_opts = pulumi.ResourceOptions(parent=self)
 
         self.bucket = gcs.Bucket(
-            name or "mlflow-artifact-store",
-            location=location,
-            force_destroy=True, # careful
+            name,
+            location=args.get("location"),
+            force_destroy=True,  # careful
             default_event_based_hold=False,
             deletion_policy="DELETE",
             enable_object_retention=False,
@@ -35,7 +41,9 @@ class ArtifactStore(pulumi.ComponentResource):
             opts=child_opts,
         )
 
-        self.register_outputs({
-            "bucket_name": self.bucket.name,
-            "bucket_url": self.bucket.url,
-        })
+        self.register_outputs(
+            {
+                "bucket_name": self.bucket.name,
+                "bucket_url": self.bucket.url,
+            }
+        )

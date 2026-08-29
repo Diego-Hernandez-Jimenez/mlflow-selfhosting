@@ -1,17 +1,13 @@
-"""A Google Cloud + Neon Python Pulumi plugin"""
+from components.gcp_mlflow import GcpMlflow, GcpMlflowArgs
 
-# Explicit component registration
-from pulumi.provider.experimental import component_provider_host
+gcp_mlflow_args = GcpMlflowArgs(
+    env="dev",
+    mlflow_version="v3.15.1",
+    # extra_dependencies=[],
+    backend_store_region="aws-us-east-1",
+    backend_store_pg_version=18,
+    artifact_store_region="us-east1",
+    mlflow_server_region="us-east1",
+)
 
-from components.artifact_store import ArtifactStore  # noqa: F401
-from components.backend_store import BackendStore  # noqa: F401
-from components.gcp_mlflow import GcpMlflow  # noqa: F401
-from components.iam import MlflowIam  # noqa: F401
-from components.mlflow_service.tracking_server import MlflowServer  # noqa: F401
-
-if __name__ == "__main__":
-    component_provider_host(
-        [ArtifactStore, BackendStore, GcpMlflow, MlflowIam, MlflowServer],
-        "mlflow-selfhosting",
-        version="1.0.0",
-    )
+mlflow_core = GcpMlflow("mlflow-core-full-version", gcp_mlflow_args)

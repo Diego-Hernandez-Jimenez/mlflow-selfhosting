@@ -1,33 +1,42 @@
 """MLflow server deployment on GCP Cloud Run."""
 
-from pathlib import Path
+from typing import TypedDict
 
 import pulumi
 import pulumi_docker_build as docker_build
 from pulumi_gcp import artifactregistry, cloudrunv2, organizations, projects
 
 
-class MlflowServer(pulumi.ComponentResource):
+class TrackingServerArgs(TypedDict):
+    bucket_url: str
+    mlflow_version: str
+    extra_dependencies: list[str]
+    sa_email: str
+    backend_store_secret_id: str
+    region: str
+    timeout_seconds: int
+
+
+class TrackingServer(pulumi.ComponentResource):
     service: cloudrunv2.Service
 
     def __init__(
         self,
-        service_name: str | None,
-        bucket_url: pulumi.Input[str],
-        mlflow_version: pulumi.Input[str],
-        sa_email: pulumi.Input[str],
-        backend_store_secret_id: pulumi.Input[str],
-        location: pulumi.Input[str] = "us-east1",
-        timeout_seconds: pulumi.Input[int] = 600,
+        name: str | None,
+        args: TrackingServerArgs,
         opts: pulumi.ResourceOptions | None = None,
     ) -> None:
-        super().__init__("mlflow-selfhosting:server:MlflowServer", service_name, {}, opts)
+        super().__init__("mlflow-selfhosting:server:MlflowServer", name, {}, opts)
 
         child_opts = pulumi.ResourceOptions(parent=self)
 
         # necessary for proper path resolution
-        DOCKER_CONTEXT_DIR = str(Path(__file__).parent.resolve())
-        
+        # DOCKER_CONTEXT_DIR = str(Path(__file__).parent.resolve())
+        dockerfile = f"""
+        FROM ghcr.io/mlflow/mlflow:{args.get("mlflow_version")}-full
+        RUN pip install google-cloud-storage {" ".join(args.get("extra_dependencies"))}
+        """
+
         # necessary for authentication and pushing images to GCP
         client_config = organizations.get_client_config_output()
 
@@ -57,25 +66,29 @@ class MlflowServer(pulumi.ComponentResource):
             mode="STANDARD_REPOSITORY",
             repository_id="mlflow-repo",
             description="docker repository containing MLflow base image",
-            location=location,
+            location=args.get("region"),
             docker_config={"immutable_tags": False},
             deletion_policy="DELETE",
         )
 
-
         mlflow_image = docker_build.Image(
             "mlflow-image",
-            context={"location": DOCKER_CONTEXT_DIR},
-            build_args={"MLFLOW_VERSION": mlflow_version},
+            # context={"location": DOCKER_CONTEXT_DIR},
+            dockerfile={"inline": dockerfile},
+            build_args={"MLFLOW_VERSION": args.get("mlflow_version")},
             push=True,
             tags=[
                 pulumi.Output.format(
-                    "{0}/mlflow-gcp:{1}", mlflow_repo.registry_uri, mlflow_version
+                    "{0}/mlflow-gcp:{1}",
+                    mlflow_repo.registry_uri,
+                    args.get("mlflow_version"),
                 )
             ],
             registries=[
                 docker_build.RegistryArgs(
-                    address=pulumi.Output.format("{0}-docker.pkg.dev", location),
+                    address=pulumi.Output.format(
+                        "{0}-docker.pkg.dev", args.get("region")
+                    ),
                     username="oauth2accesstoken",
                     password=client_config.access_token,
                 )
@@ -84,18 +97,18 @@ class MlflowServer(pulumi.ComponentResource):
         )
 
         self.service = cloudrunv2.Service(
-            service_name or "mlflow-service",
+            name or "mlflow-service",
             opts=pulumi.ResourceOptions(
                 parent=self,
                 depends_on=[cloud_run_api],
             ),
-            name=service_name or "mlflow-service",
+            name=name or "mlflow-service",
             description="MLflow tracking server",
-            location=location,
+            location=args.get("region"),
             deletion_policy="DELETE",
             deletion_protection=False,
             ingress="INGRESS_TRAFFIC_ALL",
-            invoker_iam_disabled=True, # TODO: check options
+            invoker_iam_disabled=True,  # TODO: check options
             template={
                 "containers": [
                     {
@@ -103,27 +116,31 @@ class MlflowServer(pulumi.ComponentResource):
                         "commands": ["mlflow"],
                         "args": [
                             "server",
-                            "--artifacts-destination",
-                            bucket_url,
+                            "--default-artifact-root",
+                            args.get("bucket_url"),
                             "--host",
                             "0.0.0.0",
+                            "--workers",
+                            "2",
                             "--disable-security-middleware",
                         ],
                         "ports": {"container_port": 5000},
-                        "envs": [{
-                            "name": "MLFLOW_BACKEND_STORE_URI",
-                            "value_source": {
-                                "secret_key_ref": {
-                                    "secret": backend_store_secret_id,
-                                    "version": "latest",
+                        "envs": [
+                            {
+                                "name": "MLFLOW_BACKEND_STORE_URI",
+                                "value_source": {
+                                    "secret_key_ref": {
+                                        "secret": args.get("backend_store_secret_id"),
+                                        "version": "latest",
+                                    },
                                 },
                             },
-                        }],
+                        ],
                         "resources": {
                             "cpu_idle": True,
                             "limits": {
-                                "cpu": "1", # TODO: check if customizable
-                                "memory": "2Gi", # TODO: check if customizable
+                                "cpu": "1",  # TODO: check if customizable
+                                "memory": "2Gi",  # TODO: check if customizable
                             },
                             "startup_cpu_boost": False,
                         },
@@ -131,16 +148,18 @@ class MlflowServer(pulumi.ComponentResource):
                 ],
                 "execution_environment": "EXECUTION_ENVIRONMENT_GEN2",
                 "scaling": {
-                    "max_instance_count": 1, 
+                    "max_instance_count": 1,
                     "min_instance_count": 0,
                 },
-                "health_check_disabled": True, # TODO: check
-                "service_account": sa_email,
-                "timeout": f"{timeout_seconds}s",
+                "health_check_disabled": True,  # TODO: check
+                "service_account": args.get("sa_email"),
+                "timeout": f"{args.get('timeout_seconds')}s",
             },
         )
 
-        self.register_outputs({
-            "docker_image": mlflow_image.ref,
-            "url": self.service.uri,
-        })
+        self.register_outputs(
+            {
+                "docker_image": mlflow_image.ref,
+                "url": self.service.uri,
+            }
+        )

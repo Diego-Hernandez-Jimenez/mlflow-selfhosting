@@ -1,8 +1,16 @@
 """IAM roles and service accounts for MLflow access."""
 
+from typing import TypedDict
+
 import pulumi
 from pulumi_gcp import secretmanager, serviceaccount
 from pulumi_gcp import storage as gcs
+
+
+class IamArgs(TypedDict):
+    bucket_name: str
+    sa_display_name: str
+    backend_store_uri_secret_id: str
 
 
 class MlflowIam(pulumi.ComponentResource):
@@ -10,29 +18,28 @@ class MlflowIam(pulumi.ComponentResource):
 
     def __init__(
         self,
-        service_account_name: str,
-        bucket_name: pulumi.Input[str],
-        neon_db_secret_id: pulumi.Input[str],
+        name: str,
+        args: IamArgs,
         opts: pulumi.ResourceOptions | None = None,
     ) -> None:
-        super().__init__("mlflow-selfhosting:iam:MlflowIam", service_account_name, {}, opts)
+        super().__init__("mlflow-selfhosting:iam:MlflowIam", name, {}, opts)
 
         child_opts = pulumi.ResourceOptions(parent=self)
 
         self.service_account = serviceaccount.Account(
-            service_account_name or "mlflow-sa",
+            name,
             account_id="mlflow-sa",
             create_ignore_already_exists=True,
             deletion_policy="DELETE",
             description="MLflow service account",
             disabled=False,
-            display_name=service_account_name or "mlflow-sa",
+            display_name=args.get("sa_display_name") or "mlflow-sa",
             opts=child_opts,
         )
 
         gcs.BucketIAMBinding(
             "mlflow-bucket-permissions",
-            bucket=bucket_name,
+            bucket=args.get("bucket_name"),
             members=[self.service_account.member],
             role="roles/storage.objectUser",
             opts=child_opts,
@@ -40,12 +47,16 @@ class MlflowIam(pulumi.ComponentResource):
 
         secretmanager.SecretIamMember(
             "backend-store-uri-secret-access",
-            secret_id=neon_db_secret_id,
+            secret_id=args.get("backend_store_uri_secret_id"),
             role="roles/secretmanager.secretAccessor",
-            member=pulumi.Output.format("serviceAccount:{0}", self.service_account.email),
+            member=pulumi.Output.format(
+                "serviceAccount:{0}", self.service_account.email
+            ),
             opts=child_opts,
         )
 
-        self.register_outputs({
-            "service_account_email": self.service_account.email,
-        })
+        self.register_outputs(
+            {
+                "service_account_email": self.service_account.email,
+            }
+        )
