@@ -18,10 +18,10 @@ class PgVersion(IntEnum):
 
 
 class BackendStoreArgs(TypedDict):
-    project_name: str
-    branch_name: str
+    project_name: pulumi.Input[str]
+    branch_name: pulumi.Input[str]
     pg_version: PgVersion
-    region_id: str
+    region_id: pulumi.Input[str]
 
 
 class BackendStore(pulumi.ComponentResource):

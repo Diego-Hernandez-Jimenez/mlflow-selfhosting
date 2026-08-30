@@ -8,13 +8,13 @@ from pulumi_gcp import artifactregistry, cloudrunv2, organizations, projects
 
 
 class TrackingServerArgs(TypedDict):
-    bucket_url: str
-    mlflow_version: str
-    extra_dependencies: list[str]
-    sa_email: str
-    backend_store_secret_id: str
-    region: str
-    timeout_seconds: int
+    bucket_url: pulumi.Input[str]
+    mlflow_version: pulumi.Input[str]
+    extra_dependencies: list[pulumi.Input[str]]
+    sa_email: pulumi.Input[str]
+    backend_store_secret_id: pulumi.Input[str]
+    region: pulumi.Input[str]
+    timeout_seconds: pulumi.Input[int]
 
 
 class TrackingServer(pulumi.ComponentResource):

@@ -7,7 +7,7 @@ from pulumi_gcp import storage as gcs
 
 
 class ArtifactStoreArgs(TypedDict):
-    location: str
+    location: pulumi.Input[str]
 
 
 class ArtifactStore(pulumi.ComponentResource):

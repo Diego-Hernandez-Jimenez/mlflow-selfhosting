@@ -8,9 +8,9 @@ from pulumi_gcp import storage as gcs
 
 
 class IamArgs(TypedDict):
-    bucket_name: str
-    sa_display_name: str
-    backend_store_uri_secret_id: str
+    bucket_name: pulumi.Input[str]
+    sa_display_name: pulumi.Input[str]
+    backend_store_uri_secret_id: pulumi.Input[str]
 
 
 class MlflowIam(pulumi.ComponentResource):

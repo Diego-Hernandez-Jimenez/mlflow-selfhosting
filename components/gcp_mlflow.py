@@ -11,13 +11,13 @@ from .tracking_server import TrackingServer, TrackingServerArgs
 
 
 class GcpMlflowArgs(TypedDict):
-    env: str
-    mlflow_version: str
-    extra_dependencies: list[str] | None
-    backend_store_region: str
-    backend_store_pg_version: int
-    artifact_store_region: str
-    mlflow_server_region: str
+    env: pulumi.Input[str]
+    mlflow_version: pulumi.Input[str]
+    extra_dependencies: list[pulumi.Input[str]] | None
+    backend_store_region: pulumi.Input[str]
+    backend_store_pg_version: pulumi.Input[int]
+    artifact_store_region: pulumi.Input[str]
+    mlflow_server_region: pulumi.Input[str]
 
 
 class GcpMlflow(pulumi.ComponentResource):
