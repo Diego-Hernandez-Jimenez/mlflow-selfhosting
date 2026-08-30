@@ -32,6 +32,8 @@ class TrackingServer(pulumi.ComponentResource):
 
         # necessary for proper path resolution
         # DOCKER_CONTEXT_DIR = str(Path(__file__).parent.resolve())
+
+        # Base Dockerfile for Mlflow with gcs support. Can be extended with extra dependencies if needed.
         dockerfile = f"""
         FROM ghcr.io/mlflow/mlflow:{args.get("mlflow_version")}-full
         RUN pip install google-cloud-storage {" ".join(args.get("extra_dependencies"))}
@@ -116,13 +118,13 @@ class TrackingServer(pulumi.ComponentResource):
                         "commands": ["mlflow"],
                         "args": [
                             "server",
-                            "--default-artifact-root",
+                            "--default-artifact-root",  # bypasses Cloud Run and routes uploads directly to GCS. Proxying through Cloud Run adds latency and triggers strict payload limits.
                             args.get("bucket_url"),
                             "--host",
                             "0.0.0.0",
                             "--workers",
                             "2",
-                            "--disable-security-middleware",
+                            "--disable-security-middleware", # TODO: check if this is necessary
                         ],
                         "ports": {"container_port": 5000},
                         "envs": [

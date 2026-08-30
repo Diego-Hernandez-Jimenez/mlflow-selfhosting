@@ -1,11 +1,13 @@
 [project]
-name = "mlflow-selfhosting"
+name = "plugin"
 version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "pulumi>=3.0.0,<4.0.0",
+    "pulumi>=3.260.0",
     "pulumi-docker-build>=0.0.22",
-    "pulumi-gcp>=9.0.0,<10.0.0",
+    "pulumi-gcp>=9.35.1",
     "pulumi-neon",
 ]
 
