@@ -9,7 +9,6 @@ from pulumi_gcp import storage as gcs
 
 class IamArgs(TypedDict):
     bucket_name: pulumi.Input[str]
-    sa_display_name: pulumi.Input[str]
     backend_store_uri_secret_id: pulumi.Input[str]
 
 
@@ -33,7 +32,7 @@ class MlflowIam(pulumi.ComponentResource):
             deletion_policy="DELETE",
             description="MLflow service account",
             disabled=False,
-            display_name=args.get("sa_display_name") or "mlflow-sa",
+            display_name="mlflow-sa",
             opts=child_opts,
         )
 

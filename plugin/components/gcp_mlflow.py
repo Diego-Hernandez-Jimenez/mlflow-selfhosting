@@ -22,7 +22,7 @@ class GcpMlflowArgs(TypedDict):
 
 class GcpMlflow(pulumi.ComponentResource):
     tracking_uri: pulumi.Output[str]
-    artiact_store_uri: pulumi.Output[str]
+    artifact_store_uri: pulumi.Output[str]
 
     def __init__(
         self,
@@ -73,7 +73,6 @@ class GcpMlflow(pulumi.ComponentResource):
                 extra_dependencies=args.get("extra_dependencies") or [],
                 sa_email=self.iam.service_account.email,
                 backend_store_secret_id=self.backend.backend_store_uri_secret.secret_id,
-                backend_store_uri=self.backend.backend_store_uri,
                 region=args.get("mlflow_server_region"),
                 timeout_seconds=600,
             ),
@@ -81,10 +80,11 @@ class GcpMlflow(pulumi.ComponentResource):
         )
 
         self.tracking_uri = self.tracking_server.service.uri
+        self.artifact_store_uri = self.artifact_store.bucket.url
 
         self.register_outputs(
             {
                 "tracking_uri": self.tracking_uri,
-                "artifact_store_uri": self.artifact_store,
+                "artifact_store_uri": self.artifact_store_uri,
             }
         )
