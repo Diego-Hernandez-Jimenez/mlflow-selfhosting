@@ -24,11 +24,13 @@ You must authenticate with both cloud providers before initializing the deployme
 
 ## Installation
 
-You can import this plugin directly from its Git repository. Add the following to your environment:
+You can import this plugin directly from its Git repository. The plugin source lives in the `plugin/` subdirectory. Add the following to your environment:
 
 ```bash
-pulumi package add <repo_url>[/path/to/component]@<release-version>
+pulumi package add <repo_url>/plugin@<release-version>
 ```
+
+> **Note:** The import `from pulumi_mlflow_selfhosting import ...` shown below is only available after running `pulumi package add`, which generates a local SDK. You cannot install it directly with `pip`.
 
 ## Usage
 

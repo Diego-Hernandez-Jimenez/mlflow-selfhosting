@@ -1,7 +1,7 @@
 [project]
-name = "plugin"
+name = "pulumi-mlflow-selfhosting"
 version = "0.1.0"
-description = "Add your description here"
+description = "Pulumi plugin to deploy a minimal-cost MLflow environment on GCP + Neon"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
