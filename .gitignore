@@ -1,5 +1,6 @@
 *.pyc
 .venv/
+venv/
 __pycache__/
 env.sh
 
