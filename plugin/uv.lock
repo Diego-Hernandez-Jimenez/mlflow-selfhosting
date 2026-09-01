@@ -220,25 +220,6 @@ wheels = [
 ]
 
 [[package]]
-name = "plugin"
-version = "0.1.0"
-source = { virtual = "." }
-dependencies = [
-    { name = "pulumi" },
-    { name = "pulumi-docker-build" },
-    { name = "pulumi-gcp" },
-    { name = "pulumi-neon" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "pulumi", specifier = ">=3.260.0" },
-    { name = "pulumi-docker-build", specifier = ">=0.0.22" },
-    { name = "pulumi-gcp", specifier = ">=9.35.1" },
-    { name = "pulumi-neon", directory = "sdks/neon" },
-]
-
-[[package]]
 name = "protobuf"
 version = "6.33.6"
 source = { registry = "https://pypi.org/simple" }
@@ -301,6 +282,25 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/2f/f1/eced594bdf8e2f741b53ad7ee776e35ca3c8149655c47c461ea1c4f9c35c/pulumi_gcp-9.35.1.tar.gz", hash = "sha256:9be1d01d0f6b50f8a0a658e61ec7b89e16bca91c8ef234293062cee74558e2c9", size = 11299330, upload-time = "2026-08-24T18:02:41.946Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/f8/c1/0b580aafc2d2d2d23f191ab1a5abc574d3540a7347ee075d31c15461e64e/pulumi_gcp-9.35.1-py3-none-any.whl", hash = "sha256:d1a61fd44321f38c59facc1aef475f979d6b3eec1a1b23282c8263c2274fa86b", size = 13803269, upload-time = "2026-08-24T18:02:39.785Z" },
+]
+
+[[package]]
+name = "pulumi-mlflow-selfhosting"
+version = "0.1.0"
+source = { virtual = "." }
+dependencies = [
+    { name = "pulumi" },
+    { name = "pulumi-docker-build" },
+    { name = "pulumi-gcp" },
+    { name = "pulumi-neon" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "pulumi", specifier = ">=3.260.0" },
+    { name = "pulumi-docker-build", specifier = ">=0.0.22" },
+    { name = "pulumi-gcp", specifier = ">=9.35.1" },
+    { name = "pulumi-neon", directory = "sdks/neon" },
 ]
 
 [[package]]
