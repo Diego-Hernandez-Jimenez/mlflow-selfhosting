@@ -14,6 +14,8 @@ class IamArgs(TypedDict):
 
 class MlflowIam(pulumi.ComponentResource):
     service_account: serviceaccount.Account
+    bucket_binding: gcs.BucketIAMBinding
+    secret_member: secretmanager.SecretIamMember
 
     def __init__(
         self,
@@ -36,7 +38,7 @@ class MlflowIam(pulumi.ComponentResource):
             opts=child_opts,
         )
 
-        gcs.BucketIAMBinding(
+        self.bucket_binding = gcs.BucketIAMBinding(
             "mlflow-bucket-permissions",
             bucket=args.get("bucket_name"),
             members=[self.service_account.member],
@@ -44,7 +46,7 @@ class MlflowIam(pulumi.ComponentResource):
             opts=child_opts,
         )
 
-        secretmanager.SecretIamMember(
+        self.secret_member = secretmanager.SecretIamMember(
             "backend-store-uri-secret-access",
             secret_id=args.get("backend_store_uri_secret_id"),
             role="roles/secretmanager.secretAccessor",
