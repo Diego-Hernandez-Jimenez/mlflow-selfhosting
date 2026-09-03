@@ -1,4 +1,4 @@
-name: Code quality and testing analysis with flake8 and unittest
+name: Code quality and testing analysis with Ruff and unittest
 on:
   push:
     branches:
@@ -6,7 +6,7 @@ on:
   pull_request:
 
 jobs:
-  run-flake8-and-unittest:
+  run-ruff-and-unittest:
     runs-on: ubuntu-latest
     defaults:
       run:
