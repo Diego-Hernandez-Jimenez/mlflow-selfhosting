@@ -1,7 +1,8 @@
 *.pyc
 .venv/
-# sdks/
+venv/
 __pycache__/
 env.sh
 
-Pulumi.*yaml
+# used for testing the plugin locally
+example-project/
