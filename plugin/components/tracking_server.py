@@ -95,7 +95,13 @@ class TrackingServer(pulumi.ComponentResource):
                     password=client_config.access_token,
                 )
             ],
-            opts=child_opts,
+            # registries is ignored to prevent spurious updates:
+            # I noticed that every time I run `pulumi up`, pulumi identified a change that required an update of the resource. It seems that
+            # the GCP OAuth2 token rotates on every run, which would cause Pulumi to treat the image as changed even when nothing actually changed.
+            opts=pulumi.ResourceOptions(
+                parent=self,
+                ignore_changes=["registries"],
+            ),
         )
 
         self.service = cloudrunv2.Service(
@@ -124,7 +130,7 @@ class TrackingServer(pulumi.ComponentResource):
                             "0.0.0.0",
                             "--workers",
                             "2",
-                            "--disable-security-middleware", # TODO: check if this is necessary
+                            "--disable-security-middleware",  # TODO: check if this is necessary
                         ],
                         "ports": {"container_port": 5000},
                         "envs": [
