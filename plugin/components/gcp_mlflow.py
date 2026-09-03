@@ -31,7 +31,7 @@ class GcpMlflow(pulumi.ComponentResource):
         opts: pulumi.ResourceOptions | None = None,
     ) -> None:
         super().__init__("mlflow-selfhosting:index:GcpMlflow", name, {}, opts)
-            
+
         # pulumi hierarchy
         child_opts = pulumi.ResourceOptions(parent=self)
 
@@ -39,11 +39,11 @@ class GcpMlflow(pulumi.ComponentResource):
         self.backend = BackendStore(
             "mlflow-backend-store",
             args=BackendStoreArgs(
-               project_name="mlflow-backend-store",
-               branch_name=args.get("env"),
-               pg_version=PgVersion(args.get("backend_store_pg_version")),
-               region_id=args.get("backend_store_region")
-           ),
+                project_name="mlflow-backend-store",
+                branch_name=args.get("env"),
+                pg_version=PgVersion(args.get("backend_store_pg_version")),
+                region_id=args.get("backend_store_region"),
+            ),
             opts=child_opts,
         )
 

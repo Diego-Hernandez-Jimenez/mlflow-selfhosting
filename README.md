@@ -11,7 +11,7 @@ This Pulumi Python plugin automates the deployment of a fully functional MLflow 
 
 ## Authentication and API Keys
 
-You must authenticate with both cloud providers before initializing the deployment. 
+You must authenticate with both cloud providers before initializing the deployment.
 
 1. **Google Cloud**: Authenticate your environment via `gcloud auth login` or by exporting the `GOOGLE_APPLICATION_CREDENTIALS` environment variable.
 2. **Neon**: You must export your authentication keys as environment variables. Create a file named `env.sh` (you can copy `env.sh.template`) and fill in your credentials:
@@ -34,7 +34,7 @@ pulumi package add <repo_url>/plugin@<release-version>
 
 ## Usage
 
-The plugin exposes a unified `GcpMlflow` component that automatically wires together the backend store, artifact store, IAM permissions, and the Cloud Run server. 
+The plugin exposes a unified `GcpMlflow` component that automatically wires together the backend store, artifact store, IAM permissions, and the Cloud Run server.
 
 Add the following to your `__main__.py` file to deploy the full infrastructure:
 
