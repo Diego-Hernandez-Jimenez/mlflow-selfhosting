@@ -27,7 +27,8 @@ You must authenticate with both cloud providers before initializing the deployme
 You can import this plugin directly from its Git repository. The plugin source lives in the `plugin/` subdirectory. Add the following to your environment:
 
 ```bash
-pulumi package add <repo_url>/plugin@<release-version>
+# pulumi package add <repo_url>/plugin@<release-version>
+pulumi package add https://github.com/Diego-Hernandez-Jimenez/mlflow-selfhosting/plugin
 ```
 
 > **Note:** The import `from pulumi_mlflow_selfhosting import ...` shown below is only available after running `pulumi package add`, which generates a local SDK. You cannot install it directly with `pip`.
@@ -39,12 +40,14 @@ The plugin exposes a unified `GcpMlflow` component that automatically wires toge
 Add the following to your `__main__.py` file to deploy the full infrastructure:
 
 ```python
-from pulumi_mlflow_selfhosting import GcpMlflowArgs, GcpMlflow
+
+# ugly package name, I know, I'll try to edit it
+from diego_hernandez_jimenez_mlflow_selfhosting import GcpMlflowArgs, GcpMlflow
 
 gcp_mlflow_args = GcpMlflowArgs(
     env="dev",
     mlflow_version="v3.15.1",
-    # extra_dependencies=[],
+    # extra_dependencies=[], # already includes google-cloud-storage
     backend_store_region="aws-us-east-1",
     backend_store_pg_version=18,
     artifact_store_region="us-east1",
