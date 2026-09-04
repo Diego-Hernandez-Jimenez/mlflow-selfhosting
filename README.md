@@ -1,4 +1,4 @@
-# Pulumi GCP & Neon MLflow Deployment Plugin
+# Pulumi GCP & Neon MLflow deployment plugin
 
 This Pulumi Python plugin automates the deployment of a fully functional MLflow environment using Google Cloud Platform (GCP) and Neon. It provisions a Google Cloud Storage bucket for the artifact store, a Neon serverless Postgres database for the backend store, and a Cloud Run tracking server with the MLflow UI. It's based on the official [Mlflow guide for deploying on GCP](https://mlflow.org/docs/latest/self-hosting/deploy-to-cloud/gcp/) with some notable differences (see the **Why Neon?** section).
 
@@ -9,7 +9,7 @@ This Pulumi Python plugin automates the deployment of a fully functional MLflow 
 - **Pulumi**: Ensure the Pulumi CLI is installed and authenticated to your account.
 - **Dependencies**: Your Pulumi project must have access to `pulumi` and `pulumi-gcp`. See [here](https://www.pulumi.com/docs/iac/get-started/gcp/) for instructions on how to initialize a Pulumi project with GCP.
 
-## Authentication and API Keys
+## Authentication and API keys
 
 You must authenticate with both cloud providers before initializing the deployment.
 
@@ -31,7 +31,7 @@ You can import this plugin directly from its Git repository. The plugin source l
 pulumi package add https://github.com/Diego-Hernandez-Jimenez/mlflow-selfhosting/plugin
 ```
 
-> **Note:** The import `from pulumi_mlflow_selfhosting import ...` shown below is only available after running `pulumi package add`, which generates a local SDK. You cannot install it directly with `pip`.
+> **Note:** The import `from diego_hernandez_jimenez_mlflow_selfhosting import ...` shown below is only available after running `pulumi package add`, which generates a local SDK. You cannot install it directly with `pip`.
 
 ## Usage
 
@@ -59,7 +59,7 @@ mlflow_core = GcpMlflow("mlflow-core-full-version", gcp_mlflow_args)
 
 Run `pulumi up` to preview and provision the resources. Upon completion, the console will output the active tracking URI for your MLflow instance and the storage URI for your artifacts.
 
-## Connecting to Your Tracking Server
+## Connecting to your tracking server
 
 Once deployed, you can point your local Python training scripts to the new remote tracking server:
 
