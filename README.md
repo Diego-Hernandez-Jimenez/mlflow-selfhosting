@@ -5,6 +5,7 @@ This Pulumi Python plugin automates the deployment of a fully functional MLflow 
 ## Prerequisites
 
 - **Python Environment**: Python 3.12 or newer is required.
+- **Docker**: Docker Engine or Docker Desktop must be installed and running locally. Pulumi uses Docker to build the custom MLflow server container image and push it to Google Artifact Registry during deployment.
 - **Cloud Accounts**: You need a Google Cloud account with a target GCP project, as well as a Neon account.
 - **Pulumi**: Ensure the Pulumi CLI is installed and authenticated to your account.
 - **Dependencies**: Your Pulumi project must have access to `pulumi` and `pulumi-gcp`. See [here](https://www.pulumi.com/docs/iac/get-started/gcp/) for instructions on how to initialize a Pulumi project with GCP.
@@ -28,7 +29,7 @@ You can import this plugin directly from its Git repository. The plugin source l
 
 ```bash
 # pulumi package add <repo_url>/plugin@<release-version>
-pulumi package add https://github.com/Diego-Hernandez-Jimenez/mlflow-selfhosting/plugin
+pulumi package add https://github.com/Diego-Hernandez-Jimenez/mlflow-selfhosting/plugin@v0.0.1
 ```
 
 > **Note:** The import `from diego_hernandez_jimenez_mlflow_selfhosting import ...` shown below is only available after running `pulumi package add`, which generates a local SDK. You cannot install it directly with `pip`.
